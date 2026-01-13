@@ -9,11 +9,14 @@ import {
   parseEther,
   encodeFunctionData,
   keccak256,
+  encodeAbiParameters,
+  parseAbiParameters,
   type Address,
   type Hash,
   hexToBytes
 } from 'viem';
 import { mantleSepoliaTestnet } from 'viem/chains';
+import { privateKeyToAccount } from 'viem/accounts';
 
 // Contract addresses
 const FACTORY_ADDRESS = '0xaE13506dEAe7F82EA5c1c646d0b6693b220A4BB8';
@@ -62,6 +65,28 @@ const WALLET_ABI = [
     outputs: [{ name: 'result', type: 'bytes' }],
     stateMutability: 'nonpayable',
   },
+] as const;
+
+const FACTORY_ABI = [
+  {
+    name: 'getWalletAddress',
+    type: 'function',
+    inputs: [{ name: 'credentialId', type: 'bytes32' }],
+    outputs: [{ name: 'predicted', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    name: 'createWallet',
+    type: 'function',
+    inputs: [
+      { name: 'credentialId', type: 'bytes32' },
+      { name: 'pubKeyX', type: 'uint256' },
+      { name: 'pubKeyY', type: 'uint256' },
+      { name: 'recoveryAddress', type: 'address' }
+    ],
+    outputs: [{ name: 'wallet', type: 'address' }],
+    stateMutability: 'payable',
+  }
 ] as const;
 
 // Types
@@ -144,6 +169,8 @@ export default function Home() {
   const [logs, setLogs] = useState<string[]>([]);
   const [messageInput, setMessageInput] = useState('');
   const [copied, setCopied] = useState(false);
+  const [recipient, setRecipient] = useState('');
+  const [amount, setAmount] = useState('');
 
   const addLog = (msg: string) => {
     setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`]);
@@ -254,14 +281,6 @@ export default function Home() {
       // Calculate address without deployment
       addLog('Calculating Wallet Address...');
 
-      const FACTORY_ABI = [{
-        name: 'getWalletAddress',
-        type: 'function',
-        inputs: [{ name: 'credentialId', type: 'bytes32' }],
-        outputs: [{ name: 'predicted', type: 'address' }],
-        stateMutability: 'view',
-      }] as const;
-
       const publicClient = createPublicClient({
         chain: mantleSepoliaTestnet,
         transport: http(RPC_URL)
@@ -324,6 +343,168 @@ export default function Home() {
     }
   }, [wallet, messageInput]);
 
+  const handleSend = async () => {
+    if (!wallet || !recipient || !amount) {
+      setError("Please check wallet connection and inputs");
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      addLog(`Initiating Transfer of ${amount} MNT to ${recipient}...`);
+      await switchChain();
+
+      const client = getEthereumProvider();
+      if (!client) throw new Error("No provider found");
+
+      const publicClient = createPublicClient({
+        chain: mantleSepoliaTestnet,
+        transport: http(RPC_URL)
+      });
+
+      const walletClient = createWalletClient({
+        chain: mantleSepoliaTestnet,
+        transport: custom(client)
+      });
+      const [account] = await walletClient.requestAddresses();
+
+      // 1. Check if wallet is deployed (Lazy Deployment)
+      addLog("Checking wallet deployment status...");
+      const code = await publicClient.getBytecode({ address: wallet.address as Address });
+
+      if (!code || code === '0x') {
+        addLog("⚠️ Wallet not deployed. Deploying now (lazy init)...");
+
+        const { request } = await publicClient.simulateContract({
+          address: FACTORY_ADDRESS as Address,
+          abi: FACTORY_ABI,
+          functionName: 'createWallet',
+          args: [
+            wallet.credentialIdHash as `0x${string}`,
+            wallet.credential.publicKeyX,
+            wallet.credential.publicKeyY,
+            account // Recover address = sender
+          ],
+          account
+        });
+
+        const hash = await walletClient.writeContract(request);
+        addLog(`Deploy Tx Sent: ${hash.slice(0, 10)}...`);
+        await publicClient.waitForTransactionReceipt({ hash });
+        addLog("✅ Wallet Successfully Deployed!");
+      }
+
+      // 2. Prepare Transaction
+      addLog("Preparing transaction...");
+
+      const nonce = await publicClient.readContract({
+        address: wallet.address as Address,
+        abi: WALLET_ABI,
+        functionName: 'nonce',
+      });
+
+      const target = recipient as Address;
+      const value = parseEther(amount);
+      const data = '0x';
+      const dataHash = keccak256(data);
+
+      // Calculate hash to sign (same as solidity _hashTransaction)
+      // keccak256(abi.encode(address(this), block.chainid, target, value, keccak256(data), nonce))
+      const chainId = 5003; // Mantle Sepolia (or 5003 for Anvil fork if configured) - assuming 5003 based on switchChain
+
+      const encodedHashData = encodeAbiParameters(
+        parseAbiParameters('address, uint256, address, uint256, bytes32, uint256'),
+        [
+          wallet.address as Address,
+          BigInt(chainId),
+          target,
+          value,
+          dataHash,
+          nonce
+        ]
+      );
+
+      const txHash = keccak256(encodedHashData);
+
+      // 3. Sign with Passkey
+      addLog("Requesting Passkey Signature...");
+      const challenge = hexToBytes(txHash); // convert hex hash to bytes for WebAuthn challenge
+
+      // Pad or truncate challenge to 32 bytes if needed? Keccak is 32 bytes.
+      // WebAuthn challenge buffer.
+
+      const assertion = await navigator.credentials.get({
+        publicKey: {
+          challenge: challenge,
+          rpId: window.location.hostname,
+          userVerification: 'required',
+        },
+      }) as PublicKeyCredential;
+
+      if (!assertion) throw new Error("User cancelled signing");
+
+      // 4. Parse Signature
+      const response = assertion.response as AuthenticatorAssertionResponse;
+      const signatureData = {
+        authenticatorData: '0x' + bytesToHex(new Uint8Array(response.authenticatorData)).slice(2),
+        clientDataJSON: new TextDecoder().decode(response.clientDataJSON),
+        r: BigInt(0), // Signature parsing needed here
+        s: BigInt(0)
+      };
+
+      // Simple signature parsing for P-256 (ASN.1 DER to r,s)
+      const sigBytes = new Uint8Array(response.signature);
+      // DER sequence: 0x30 + len + 0x02 + lenR + R + 0x02 + lenS + S
+      let pos = 2; // skip sequence header
+      const rLen = sigBytes[pos + 1];
+      const rStart = pos + 2;
+      const rBytes = sigBytes.slice(rStart, rStart + rLen);
+      signatureData.r = bytesToBigInt(rBytes);
+
+      pos = rStart + rLen;
+      const sLen = sigBytes[pos + 1];
+      const sStart = pos + 2;
+      const sBytes = sigBytes.slice(sStart, sStart + sLen);
+      signatureData.s = bytesToBigInt(sBytes);
+
+      addLog("✅ Signature generated. Executing on-chain...");
+
+      // 5. Execute on Wallet
+      const execHash = await walletClient.writeContract({
+        address: wallet.address as Address,
+        abi: WALLET_ABI,
+        functionName: 'execute',
+        args: [
+          target,
+          value,
+          data,
+          wallet.credentialIdHash as `0x${string}`,
+          {
+            authenticatorData: signatureData.authenticatorData as `0x${string}`,
+            clientDataJSON: signatureData.clientDataJSON,
+            r: signatureData.r,
+            s: signatureData.s
+          }
+        ],
+        account
+      });
+
+      addLog(`🚀 Transaction Sent! Hash: ${execHash}`);
+      await publicClient.waitForTransactionReceipt({ hash: execHash });
+      addLog(`✅ Transaction Confirmed!`);
+      setAmount('');
+      setRecipient('');
+
+    } catch (e: any) {
+      console.error(e);
+      setError(e.message || "Transaction failed");
+      addLog(`❌ Error: ${e.message || "Transaction failed"}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const disconnect = () => {
     setWallet(null);
     setLogs([]);
@@ -335,6 +516,55 @@ export default function Home() {
     await navigator.clipboard.writeText(wallet.address);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const fundWallet = async () => {
+    if (!wallet) return;
+    setIsLoading(true);
+    addLog("Funding accounts from Local Anvil Whale...");
+    try {
+      const client = createWalletClient({
+        chain: mantleSepoliaTestnet,
+        transport: http(RPC_URL)
+      });
+
+      // precise default anvil private key #0
+      const whale = privateKeyToAccount('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80');
+
+      // 1. Get EOA (MetaMask) Address to fund for gas
+      const provider = getEthereumProvider();
+      let eoaAddress: Address | undefined;
+      if (provider) {
+        const accounts = await provider.request({ method: 'eth_requestAccounts' });
+        if (accounts && accounts.length > 0) {
+          eoaAddress = accounts[0] as Address;
+        }
+      }
+
+      // 2. Fund EOA (Gas Payer)
+      if (eoaAddress) {
+        const hashEOA = await client.sendTransaction({
+          account: whale,
+          to: eoaAddress,
+          value: parseEther('5')
+        });
+        addLog(`Funded Gas Payer (MetaMask): ${hashEOA}`);
+      }
+
+      // 3. Fund Smart Wallet (Asset Sender)
+      const hashWallet = await client.sendTransaction({
+        account: whale,
+        to: wallet.address as Address,
+        value: parseEther('10')
+      });
+
+      addLog(`Funded Smart Wallet: ${hashWallet}`);
+    } catch (e: any) {
+      setError(e.message);
+      addLog(`❌ Funding Failed: ${e.message}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -452,8 +682,44 @@ export default function Home() {
                   >
                     {isLoading ? 'SIGNING...' : 'SIGN MSG'}
                   </button>
+                  <button
+                    onClick={fundWallet}
+                    disabled={isLoading}
+                    className="col-span-2 py-3 rounded-xl font-mono text-xs border border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10 transition-colors"
+                  >
+                    💰 GET 10 TEST MNT (LOCAL ONLY)
+                  </button>
                 </div>
               </div>
+
+              {/* Transfer UI */}
+              <div className="bg-[rgba(0,255,204,0.02)] border border-[rgba(0,255,204,0.1)] rounded-xl p-4 space-y-4">
+                <p className="text-[var(--text-secondary)] font-mono text-xs uppercase tracking-widest">Send Assets</p>
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    placeholder="Recipient Address (0x...)"
+                    value={recipient}
+                    onChange={(e) => setRecipient(e.target.value)}
+                    className="w-full bg-[rgba(0,0,0,0.3)] border border-[rgba(0,255,204,0.2)] rounded-xl p-3 text-[var(--foreground)] font-mono text-sm focus:outline-none focus:border-[var(--accent)] transition-colors"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Amount (MNT)"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    className="w-full bg-[rgba(0,0,0,0.3)] border border-[rgba(0,255,204,0.2)] rounded-xl p-3 text-[var(--foreground)] font-mono text-sm focus:outline-none focus:border-[var(--accent)] transition-colors"
+                  />
+                  <button
+                    onClick={handleSend}
+                    disabled={isLoading}
+                    className="w-full py-3 rounded-xl font-bold font-mono tracking-wide bg-[var(--accent)] text-black hover:opacity-90 hover:scale-[1.01] neon-glow transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? 'SENDING...' : 'SEND MNT'}
+                  </button>
+                </div>
+              </div>
+
             </div>
           )}
 
