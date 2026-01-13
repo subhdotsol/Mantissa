@@ -221,99 +221,142 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
-      <div className="container mx-auto px-4 py-16 max-w-2xl">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            Mantissa
-          </h1>
-          <p className="text-gray-400 text-lg">
-            Passkey-native smart wallet for Mantle L2
-          </p>
-        </div>
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      {/* Background accents */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[var(--accent)] opacity-[0.03] blur-[100px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[var(--accent)] opacity-[0.03] blur-[100px] rounded-full pointer-events-none" />
 
-        <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10 mb-8">
+      {/* Header */}
+      <div className="text-center mb-12 relative z-10">
+        <h1 className="text-4xl md:text-6xl font-bold mb-4 tracking-widest neon-text-glow font-sans uppercase">
+          Seedless Smart Wallet
+        </h1>
+        <p className="text-[var(--text-secondary)] text-lg md:text-xl tracking-[0.2em] font-mono uppercase">
+          Your passkeys, biometrics, and assets stay encrypted
+        </p>
+      </div>
+
+      {/* Glass Card */}
+      <div className="glass-card rounded-3xl p-1 w-full max-w-[520px] relative">
+        <div className="bg-[rgba(2,13,8,0.4)] rounded-[20px] p-6 md:p-8 backdrop-blur-sm">
+
           {!isSupported ? (
-            <div className="text-center text-red-400">
-              <p className="text-xl mb-2">⚠️ WebAuthn Not Supported</p>
-              <p className="text-sm text-gray-400">
-                Please use a modern browser with passkey support
-              </p>
+            <div className="text-center py-12">
+              <div className="text-red-500 mb-4 text-5xl">⚠️</div>
+              <p className="text-xl mb-2 text-red-400 font-mono">WebAuthn Not Supported</p>
+              <p className="text-sm text-[var(--text-secondary)]">Please use a modern browser</p>
             </div>
           ) : !wallet ? (
-            <div className="text-center">
-              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
-                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
+            <div className="flex flex-col gap-6">
+              {/* Info Display Mockup */}
+              <div className="space-y-4">
+                <div className="bg-[rgba(0,255,204,0.03)] border border-[rgba(0,255,204,0.1)] rounded-xl p-4 flex justify-between items-center">
+                  <span className="text-[var(--text-secondary)] font-mono text-sm">NETWORK</span>
+                  <span className="text-[var(--accent)] font-mono font-bold">MANTLE L2</span>
+                </div>
+                <div className="bg-[rgba(0,255,204,0.03)] border border-[rgba(0,255,204,0.1)] rounded-xl p-4 flex justify-between items-center">
+                  <span className="text-[var(--text-secondary)] font-mono text-sm">SECURITY</span>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[var(--accent)] neon-glow"></span>
+                    <span className="text-[var(--accent)] font-mono font-bold">P-256 SECURE</span>
+                  </div>
+                </div>
               </div>
-              <h2 className="text-2xl font-semibold mb-4">Connect Your Wallet</h2>
-              <p className="text-gray-400 mb-6">
-                Create a seedless wallet using your device&apos;s biometrics
-              </p>
+
+              <div className="h-px w-full bg-gradient-to-r from-transparent via-[rgba(0,255,204,0.2)] to-transparent my-2" />
+
               <button
                 onClick={createWallet}
                 disabled={isLoading}
-                className="w-full py-4 px-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl font-semibold text-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+                className="w-full py-5 rounded-xl font-bold text-lg tracking-widest transition-all duration-300
+                  bg-[var(--accent)] text-black hover:opacity-90 hover:scale-[1.02] neon-glow disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? 'Creating...' : '🔐 Create Passkey Wallet'}
+                {isLoading ? (
+                  <span className="flex items-center justify-center gap-3">
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    CREATING...
+                  </span>
+                ) : 'CONNECT WALLET'}
               </button>
             </div>
           ) : (
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 flex items-center justify-center">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-400">Connected</p>
-                    <p className="font-mono text-sm">
-                      {wallet.address.slice(0, 8)}...{wallet.address.slice(-6)}
-                    </p>
-                  </div>
+            <div className="flex flex-col gap-6">
+              {/* Connected State */}
+              <div className="bg-[rgba(0,255,204,0.05)] border border-[var(--accent)] rounded-xl p-6 text-center relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-[var(--accent)] neon-glow" />
+
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[rgba(0,255,204,0.1)] border border-[var(--accent)] flex items-center justify-center neon-glow">
+                  <svg className="w-8 h-8 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
                 </div>
-                <button
-                  onClick={disconnect}
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
-                  Disconnect
-                </button>
+
+                <p className="text-[var(--text-secondary)] text-sm font-mono mb-1">CONNECTED WALLET</p>
+                <p className="text-xl md:text-2xl font-mono text-white tracking-wider break-all">
+                  {wallet.address.slice(0, 6)}...{wallet.address.slice(-4)}
+                </p>
               </div>
 
-              <button
-                onClick={signMessage}
-                disabled={isLoading}
-                className="w-full py-3 px-6 bg-white/10 border border-white/20 rounded-xl font-medium hover:bg-white/20 transition-colors disabled:opacity-50"
-              >
-                {isLoading ? 'Signing...' : '✍️ Sign Message'}
-              </button>
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  onClick={disconnect}
+                  className="py-4 rounded-xl font-mono border border-[rgba(0,255,204,0.2)] text-[var(--text-secondary)] hover:text-[var(--accent)] hover:border-[var(--accent)] transition-colors"
+                >
+                  DISCONNECT
+                </button>
+                <button
+                  onClick={signMessage}
+                  disabled={isLoading}
+                  className="py-4 rounded-xl font-bold font-mono tracking-wide
+                    bg-[rgba(0,255,204,0.1)] text-[var(--accent)] border border-[var(--accent)] hover:bg-[rgba(0,255,204,0.2)] neon-glow transition-all"
+                >
+                  {isLoading ? 'SIGNING...' : 'SIGN MSG'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Error Message */}
+          {error && (
+            <div className="mt-6 bg-[rgba(255,50,50,0.1)] border border-red-500/50 rounded-xl p-4 animate-in fade-in slide-in-from-top-2">
+              <p className="text-red-400 text-sm font-mono text-center">Error: {error}</p>
             </div>
           )}
         </div>
+      </div>
 
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-8">
-            <p className="text-red-400">{error}</p>
-          </div>
-        )}
-
-        {logs.length > 0 && (
-          <div className="bg-black/30 rounded-xl p-4 font-mono text-sm">
-            <p className="text-gray-500 mb-2">Console</p>
-            <div className="space-y-1 max-h-48 overflow-y-auto">
-              {logs.map((log, i) => (
-                <p key={i} className="text-gray-300">{log}</p>
-              ))}
+      {/* Logs Console */}
+      {logs.length > 0 && (
+        <div className="mt-8 w-full max-w-[520px] glass-card rounded-xl p-4 overflow-hidden">
+          <div className="flex justify-between items-center mb-2 px-2">
+            <span className="text-[var(--accent)] font-mono text-xs tracking-widest uppercase">System Logs</span>
+            <div className="flex gap-1">
+              <div className="w-2 h-2 rounded-full bg-red-500/50" />
+              <div className="w-2 h-2 rounded-full bg-yellow-500/50" />
+              <div className="w-2 h-2 rounded-full bg-green-500/50" />
             </div>
           </div>
-        )}
+          <div className="bg-[rgba(0,0,0,0.5)] rounded-lg p-3 font-mono text-xs h-32 overflow-y-auto space-y-1 custom-scrollbar">
+            {logs.map((log, i) => (
+              <div key={i} className="flex gap-2">
+                <span className="text-[var(--text-secondary)] opacity-50">{log.split(']')[0]}]</span>
+                <span className="text-[var(--foreground)]">{log.split(']')[1]}</span>
+              </div>
+            ))}
+            <div ref={(el) => el?.scrollIntoView({ behavior: 'smooth' })} />
+          </div>
+        </div>
+      )}
 
-        <div className="text-center mt-12 text-gray-500 text-sm">
-          <p>Factory: <code className="text-purple-400">{FACTORY_ADDRESS}</code></p>
-          <p>RPC: <code className="text-purple-400">{RPC_URL}</code></p>
+      {/* Footer */}
+      <div className="mt-12 text-center">
+        <div className="inline-flex items-center gap-6 text-[var(--text-secondary)] text-xs font-mono tracking-widest opacity-60">
+          <span>FACTORY: {FACTORY_ADDRESS.slice(0, 6)}...</span>
+          <span>•</span>
+          <span>RPC: LOCALHOST</span>
         </div>
       </div>
     </div>
