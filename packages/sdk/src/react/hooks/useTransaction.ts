@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { useMantlePass } from '../MantlePassProvider';
+import { useMantissa } from '../MantissaProvider';
 import type { ExecuteParams, ContractSignature } from '../../types';
 import type { Hex } from 'viem';
 
@@ -32,7 +32,7 @@ import type { Hex } from 'viem';
  * ```
  */
 export function useTransaction() {
-  const { client, wallet, signTransaction } = useMantlePass();
+  const { client, wallet, signTransaction } = useMantissa();
   const [isSigning, setIsSigning] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

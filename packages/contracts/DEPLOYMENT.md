@@ -1,6 +1,6 @@
-# MantlePass Deployment Guide
+# Mantissa Deployment Guide
 
-Complete guide to deploying MantlePass smart contracts on all environments.
+Complete guide to deploying Mantissa smart contracts on all environments.
 
 ## Prerequisites
 
@@ -99,7 +99,7 @@ forge verify-contract \
   --rpc-url https://rpc.sepolia.mantle.xyz \
   --etherscan-api-key $MANTLESCAN_API_KEY \
   <DEPLOYED_ADDRESS> \
-  src/MantlePassFactory.sol:MantlePassFactory
+  src/MantissaFactory.sol:MantissaFactory
 ```
 
 ---
@@ -131,7 +131,7 @@ forge verify-contract \
   --rpc-url https://rpc.mantle.xyz \
   --etherscan-api-key $MANTLESCAN_API_KEY \
   <DEPLOYED_ADDRESS> \
-  src/MantlePassFactory.sol:MantlePassFactory
+  src/MantissaFactory.sol:MantissaFactory
 ```
 
 ---
@@ -168,17 +168,17 @@ Update this section after deployment:
 ### Localnet (Anvil Fork)
 | Contract | Address |
 |----------|---------|
-| MantlePassFactory | `0xae13506deae7f82ea5c1c646d0b6693b220a4bb8` |
+| MantissaFactory | `0xae13506deae7f82ea5c1c646d0b6693b220a4bb8` |
 
 ### Mantle Sepolia Testnet
 | Contract | Address |
 |----------|---------|
-| MantlePassFactory | `TBD` |
+| MantissaFactory | `TBD` |
 
 ### Mantle Mainnet
 | Contract | Address |
 |----------|---------|
-| MantlePassFactory | `TBD` |
+| MantissaFactory | `TBD` |
 
 ---
 

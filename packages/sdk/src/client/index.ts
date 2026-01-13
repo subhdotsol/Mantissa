@@ -1,1 +1,1 @@
-export { MantlePassClient } from './MantlePassClient';
+export { MantissaClient } from './MantissaClient';

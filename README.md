@@ -1,4 +1,4 @@
-# MantlePass 🔐
+# Mantissa 🔐
 
 **Passkey-native smart wallet for Mantle L2**
 
@@ -31,7 +31,7 @@ Create and manage smart contract wallets using device biometrics (Face ID, Touch
 ┌─────────────────────────────────────────────────────────┐
 │                    Mantle L2                            │
 │  ┌─────────────────┐    ┌───────────────────────────┐  │
-│  │ MantlePassFactory│───▶│  MantlePassWallet (Clone)  │  │
+│  │ MantissaFactory│───▶│  MantissaWallet (Clone)  │  │
 │  │ (Deploys Wallets)│    │  • P-256 Signature Verify │  │
 │  └─────────────────┘    │  • Execute Transactions   │  │
 │                          │  • Multi-Owner Support    │  │
@@ -92,8 +92,8 @@ Open http://localhost:3000 and click "Create Passkey Wallet"!
 
 The core contracts implement a passkey-authenticated smart wallet:
 
-- **`MantlePassWallet.sol`** - Smart wallet with P-256 signature verification
-- **`MantlePassFactory.sol`** - Factory for deploying wallets (CREATE2)
+- **`MantissaWallet.sol`** - Smart wallet with P-256 signature verification
+- **`MantissaFactory.sol`** - Factory for deploying wallets (CREATE2)
 - **`WebAuthnVerifier.sol`** - On-chain WebAuthn signature verification
 
 See [packages/contracts/DEPLOYMENT.md](./packages/contracts/DEPLOYMENT.md) for deployment instructions.
@@ -101,10 +101,10 @@ See [packages/contracts/DEPLOYMENT.md](./packages/contracts/DEPLOYMENT.md) for d
 ### SDK Usage
 
 ```typescript
-import { MantlePassClient } from '@mantlepass/sdk';
+import { MantissaClient } from '@mantlepass/sdk';
 
 // Initialize client
-const client = new MantlePassClient({
+const client = new MantissaClient({
   rpcUrl: 'https://rpc.sepolia.mantle.xyz',
   factoryAddress: '0x...',
 });
@@ -155,7 +155,7 @@ keymantle/
 │   │   └── script/        # Deployment scripts
 │   ├── sdk/               # TypeScript SDK
 │   │   └── src/
-│   │       ├── client/    # MantlePassClient
+│   │       ├── client/    # MantissaClient
 │   │       ├── webauthn/  # Passkey utilities
 │   │       └── utils/     # Helpers
 │   └── demo/              # Next.js demo app

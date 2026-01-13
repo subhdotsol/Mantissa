@@ -5,11 +5,11 @@ import "./lib/WebAuthnLib.sol";
 import "./lib/P256Verifier.sol";
 
 /**
- * @title MantlePassWallet
+ * @title MantissaWallet
  * @notice Smart contract wallet with passkey (WebAuthn) authentication on Mantle L2
  * @dev Uses Mantle's P-256 precompile for gas-efficient signature verification
  */
-contract MantlePassWallet {
+contract MantissaWallet {
     using WebAuthnLib for WebAuthnLib.WebAuthnSignature;
 
     /*//////////////////////////////////////////////////////////////

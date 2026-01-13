@@ -96,7 +96,7 @@ export default function Home() {
         publicKey: {
           rp: {
             id: window.location.hostname,
-            name: 'MantlePass Demo',
+            name: 'Mantissa Demo',
           },
           user: {
             id: userId,
@@ -169,7 +169,7 @@ export default function Home() {
     addLog('Requesting signature (check your browser)...');
 
     try {
-      const challenge = new TextEncoder().encode('Hello MantlePass!');
+      const challenge = new TextEncoder().encode('Hello Mantissa!');
 
       const assertion = await navigator.credentials.get({
         publicKey: {
@@ -210,7 +210,7 @@ export default function Home() {
       <div className="container mx-auto px-4 py-16 max-w-2xl">
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            MantlePass
+            Mantissa
           </h1>
           <p className="text-gray-400 text-lg">
             Passkey-native smart wallet for Mantle L2

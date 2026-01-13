@@ -8,9 +8,9 @@ import React, {
     useMemo,
     type ReactNode,
 } from 'react';
-import { MantlePassClient } from '../client';
+import { MantissaClient } from '../client';
 import type {
-    MantlePassConfig,
+    MantissaConfig,
     WalletInfo,
     WalletState,
     ExecuteParams,
@@ -19,11 +19,11 @@ import type {
 import type { Address, Hex } from 'viem';
 
 /**
- * Context value for MantlePass
+ * Context value for Mantissa
  */
-interface MantlePassContextValue {
+interface MantissaContextValue {
     /** The SDK client instance */
-    client: MantlePassClient | null;
+    client: MantissaClient | null;
     /** Current wallet info (if connected) */
     wallet: WalletInfo | null;
     /** Current wallet state */
@@ -47,42 +47,42 @@ interface MantlePassContextValue {
     refreshState: () => Promise<void>;
 }
 
-const MantlePassContext = createContext<MantlePassContextValue | null>(null);
+const MantissaContext = createContext<MantissaContextValue | null>(null);
 
 /**
- * Props for MantlePassProvider
+ * Props for MantissaProvider
  */
-interface MantlePassProviderProps extends MantlePassConfig {
+interface MantissaProviderProps extends MantissaConfig {
     children: ReactNode;
 }
 
 /**
- * Provider component for MantlePass SDK
+ * Provider component for Mantissa SDK
  * 
  * @example
  * ```tsx
- * import { MantlePassProvider } from '@mantlepass/sdk/react';
+ * import { MantissaProvider } from '@mantlepass/sdk/react';
  * 
  * function App() {
  *   return (
- *     <MantlePassProvider
+ *     <MantissaProvider
  *       rpcUrl="https://rpc.sepolia.mantle.xyz"
  *       factoryAddress="0x..."
  *       rpId="mantlepass.xyz"
  *     >
  *       <YourApp />
- *     </MantlePassProvider>
+ *     </MantissaProvider>
  *   );
  * }
  * ```
  */
-export function MantlePassProvider({
+export function MantissaProvider({
     children,
     rpcUrl,
     factoryAddress,
     chainId,
     rpId,
-}: MantlePassProviderProps) {
+}: MantissaProviderProps) {
     const [wallet, setWallet] = useState<WalletInfo | null>(null);
     const [walletState, setWalletState] = useState<WalletState | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -91,7 +91,7 @@ export function MantlePassProvider({
     // Create client instance
     const client = useMemo(
         () =>
-            new MantlePassClient({
+            new MantissaClient({
                 rpcUrl,
                 factoryAddress,
                 chainId,
@@ -177,7 +177,7 @@ export function MantlePassProvider({
         }
     }, [client, wallet]);
 
-    const value: MantlePassContextValue = useMemo(
+    const value: MantissaContextValue = useMemo(
         () => ({
             client,
             wallet,
@@ -204,19 +204,19 @@ export function MantlePassProvider({
     );
 
     return (
-        <MantlePassContext.Provider value={value}>
+        <MantissaContext.Provider value={value}>
             {children}
-        </MantlePassContext.Provider>
+        </MantissaContext.Provider>
     );
 }
 
 /**
- * Hook to access MantlePass context
+ * Hook to access Mantissa context
  */
-export function useMantlePass(): MantlePassContextValue {
-    const context = useContext(MantlePassContext);
+export function useMantissa(): MantissaContextValue {
+    const context = useContext(MantissaContext);
     if (!context) {
-        throw new Error('useMantlePass must be used within a MantlePassProvider');
+        throw new Error('useMantissa must be used within a MantissaProvider');
     }
     return context;
 }

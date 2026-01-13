@@ -2,17 +2,17 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
-import "../src/MantlePassWallet.sol";
-import "../src/MantlePassFactory.sol";
+import "../src/MantissaWallet.sol";
+import "../src/MantissaFactory.sol";
 import "../src/lib/WebAuthnLib.sol";
 
 /**
- * @title MantlePassWalletTest
- * @notice Tests for MantlePassWallet and MantlePassFactory
+ * @title MantissaWalletTest
+ * @notice Tests for MantissaWallet and MantissaFactory
  */
-contract MantlePassWalletTest is Test {
-    MantlePassFactory public factory;
-    MantlePassWallet public wallet;
+contract MantissaWalletTest is Test {
+    MantissaFactory public factory;
+    MantissaWallet public wallet;
 
     // Test passkey credentials (mock values for testing)
     bytes32 constant CREDENTIAL_ID = keccak256("test-credential-id-1");
@@ -31,7 +31,7 @@ contract MantlePassWalletTest is Test {
 
     function setUp() public {
         // Deploy factory
-        factory = new MantlePassFactory(RP_ID_HASH);
+        factory = new MantissaFactory(RP_ID_HASH);
         
         // Create a wallet through the factory
         address walletAddr = factory.createWallet(
@@ -40,7 +40,7 @@ contract MantlePassWalletTest is Test {
             PUB_KEY_Y,
             recoveryAddress
         );
-        wallet = MantlePassWallet(payable(walletAddr));
+        wallet = MantissaWallet(payable(walletAddr));
         
         // Fund the wallet
         vm.deal(address(wallet), 10 ether);
@@ -77,7 +77,7 @@ contract MantlePassWalletTest is Test {
     }
 
     function test_CannotCreateDuplicateWallet() public {
-        vm.expectRevert(MantlePassFactory.WalletAlreadyExists.selector);
+        vm.expectRevert(MantissaFactory.WalletAlreadyExists.selector);
         factory.createWallet(
             CREDENTIAL_ID, // Already exists
             PUB_KEY_X,
@@ -120,7 +120,7 @@ contract MantlePassWalletTest is Test {
     }
 
     function test_CannotReinitialize() public {
-        vm.expectRevert(MantlePassWallet.AlreadyInitialized.selector);
+        vm.expectRevert(MantissaWallet.AlreadyInitialized.selector);
         wallet.initialize(
             CREDENTIAL_ID,
             PUB_KEY_X,
@@ -195,7 +195,7 @@ contract MantlePassWalletTest is Test {
         WebAuthnLib.WebAuthnSignature memory emptySig;
         
         vm.prank(recoveryAddress);
-        vm.expectRevert(MantlePassWallet.PasskeyAlreadyExists.selector);
+        vm.expectRevert(MantissaWallet.PasskeyAlreadyExists.selector);
         wallet.addPasskey(
             CREDENTIAL_ID, // Already exists
             PUB_KEY_X,
@@ -222,7 +222,7 @@ contract MantlePassWalletTest is Test {
             s: 0
         });
         
-        vm.expectRevert(MantlePassWallet.PasskeyNotFound.selector);
+        vm.expectRevert(MantissaWallet.PasskeyNotFound.selector);
         wallet.execute(
             recipient,
             1 ether,
@@ -239,7 +239,7 @@ contract MantlePassWalletTest is Test {
         
         WebAuthnLib.WebAuthnSignature memory sig;
         
-        vm.expectRevert(MantlePassWallet.InvalidArrayLength.selector);
+        vm.expectRevert(MantissaWallet.InvalidArrayLength.selector);
         wallet.executeBatch(
             targets,
             values,

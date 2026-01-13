@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { useMantlePass } from '../MantlePassProvider';
+import { useMantissa } from '../MantissaProvider';
 import type { WalletInfo } from '../../types';
 import {
   isWebAuthnSupported,
@@ -43,7 +43,7 @@ export function useWallet() {
     connect: contextConnect,
     disconnect,
     refreshState,
-  } = useMantlePass();
+  } = useMantissa();
 
   const [isSupported, setIsSupported] = useState<boolean | null>(null);
 

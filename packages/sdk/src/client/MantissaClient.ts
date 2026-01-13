@@ -14,7 +14,7 @@ import {
 } from 'viem';
 import { mantleSepoliaTestnet, mantle } from 'viem/chains';
 import type {
-  MantlePassConfig,
+  MantissaConfig,
   PasskeyCredential,
   WalletInfo,
   ExecuteParams,
@@ -155,11 +155,11 @@ const WALLET_ABI = [
 ] as const;
 
 /**
- * MantlePass SDK Client
+ * Mantissa SDK Client
  * 
  * @example
  * ```typescript
- * const client = new MantlePassClient({
+ * const client = new MantissaClient({
  *   rpcUrl: 'https://rpc.sepolia.mantle.xyz',
  *   factoryAddress: '0x...',
  *   rpId: 'mantlepass.xyz',
@@ -177,11 +177,11 @@ const WALLET_ABI = [
  * });
  * ```
  */
-export class MantlePassClient {
+export class MantissaClient {
   private publicClient: PublicClient;
-  private config: Required<MantlePassConfig>;
+  private config: Required<MantissaConfig>;
 
-  constructor(config: MantlePassConfig) {
+  constructor(config: MantissaConfig) {
     this.config = {
       chainId: config.chainId ?? 5003, // Default to Mantle Sepolia
       rpId: config.rpId ?? 'localhost',
@@ -210,7 +210,7 @@ export class MantlePassClient {
     // Register passkey
     const credential = await registerPasskey({
       rpId: this.config.rpId,
-      rpName: 'MantlePass',
+      rpName: 'Mantissa',
       userId,
       userName,
     });

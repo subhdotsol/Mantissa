@@ -77,7 +77,7 @@ export interface BatchExecuteParams {
 /**
  * SDK configuration
  */
-export interface MantlePassConfig {
+export interface MantissaConfig {
   /** RPC URL for Mantle */
   rpcUrl: string;
   /** Factory contract address */

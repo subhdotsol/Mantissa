@@ -1,5 +1,5 @@
 // Core client
-export { MantlePassClient } from './client';
+export { MantissaClient } from './client';
 
 // Types
 export type {
@@ -9,7 +9,7 @@ export type {
   WalletInfo,
   ExecuteParams,
   BatchExecuteParams,
-  MantlePassConfig,
+  MantissaConfig,
   WalletState,
 } from './types';
 

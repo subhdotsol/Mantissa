@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "./MantlePassWallet.sol";
+import "./MantissaWallet.sol";
 
 /**
- * @title MantlePassFactory
- * @notice Factory for deploying MantlePassWallet contracts with deterministic addresses
+ * @title MantissaFactory
+ * @notice Factory for deploying MantissaWallet contracts with deterministic addresses
  * @dev Uses CREATE2 for address prediction before deployment
  */
-contract MantlePassFactory {
+contract MantissaFactory {
     /*//////////////////////////////////////////////////////////////
                                  EVENTS
     //////////////////////////////////////////////////////////////*/
@@ -71,7 +71,7 @@ contract MantlePassFactory {
 
         // Deploy wallet using CREATE2
         bytes32 salt = _computeSalt(credentialId);
-        bytes memory bytecode = type(MantlePassWallet).creationCode;
+        bytes memory bytecode = type(MantissaWallet).creationCode;
 
         assembly {
             wallet := create2(0, add(bytecode, 32), mload(bytecode), salt)
@@ -80,7 +80,7 @@ contract MantlePassFactory {
         if (wallet == address(0)) revert DeploymentFailed();
 
         // Initialize the wallet
-        MantlePassWallet(payable(wallet)).initialize(
+        MantissaWallet(payable(wallet)).initialize(
             credentialId,
             pubKeyX,
             pubKeyY,
@@ -107,7 +107,7 @@ contract MantlePassFactory {
      */
     function getWalletAddress(bytes32 credentialId) external view returns (address predicted) {
         bytes32 salt = _computeSalt(credentialId);
-        bytes32 bytecodeHash = keccak256(type(MantlePassWallet).creationCode);
+        bytes32 bytecodeHash = keccak256(type(MantissaWallet).creationCode);
 
         predicted = address(uint160(uint256(keccak256(abi.encodePacked(
             bytes1(0xff),
@@ -134,6 +134,6 @@ contract MantlePassFactory {
      * @notice Compute the CREATE2 salt for a credential ID
      */
     function _computeSalt(bytes32 credentialId) internal pure returns (bytes32) {
-        return keccak256(abi.encodePacked("MantlePass_v1", credentialId));
+        return keccak256(abi.encodePacked("Mantissa_v1", credentialId));
     }
 }

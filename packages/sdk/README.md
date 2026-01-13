@@ -1,6 +1,6 @@
 # @mantlepass/sdk
 
-TypeScript SDK for MantlePass passkey-native smart wallets.
+TypeScript SDK for Mantissa passkey-native smart wallets.
 
 ## Installation
 
@@ -11,7 +11,7 @@ npm install @mantlepass/sdk
 ## Quick Start
 
 ```typescript
-import { MantlePassClient, createPasskey, signWithPasskey } from '@mantlepass/sdk';
+import { MantissaClient, createPasskey, signWithPasskey } from '@mantlepass/sdk';
 
 // Create a passkey (triggers biometric prompt)
 const credential = await createPasskey({
@@ -20,7 +20,7 @@ const credential = await createPasskey({
 });
 
 // Initialize client
-const client = new MantlePassClient({
+const client = new MantissaClient({
   rpcUrl: 'https://rpc.sepolia.mantle.xyz',
   factoryAddress: '0x...',
   credential,
@@ -39,12 +39,12 @@ const txHash = await client.sendTransaction({
 
 ## API Reference
 
-### `MantlePassClient`
+### `MantissaClient`
 
-Main client for interacting with MantlePass wallets.
+Main client for interacting with Mantissa wallets.
 
 ```typescript
-const client = new MantlePassClient({
+const client = new MantissaClient({
   rpcUrl: string;           // RPC endpoint
   factoryAddress: string;   // Factory contract address
   credential?: PasskeyCredential;  // Optional passkey
@@ -132,13 +132,13 @@ const idHash = await hashCredentialId(credentialId);
 
 ```typescript
 // Mantle Sepolia (testnet)
-const client = new MantlePassClient({
+const client = new MantissaClient({
   rpcUrl: 'https://rpc.sepolia.mantle.xyz',
   factoryAddress: '0x...',
 });
 
 // Mantle Mainnet
-const client = new MantlePassClient({
+const client = new MantissaClient({
   rpcUrl: 'https://rpc.mantle.xyz',
   factoryAddress: '0x...',
 });
