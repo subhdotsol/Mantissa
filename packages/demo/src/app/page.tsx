@@ -573,11 +573,15 @@ export default function Home() {
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[var(--accent)] opacity-[0.03] blur-[100px] rounded-full pointer-events-none" />
 
       <div className="text-center mb-12 relative z-10">
-        <h1 className="text-4xl md:text-6xl font-bold mb-4 tracking-widest neon-text-glow font-sans uppercase">
-          Seedless Smart Wallet
+        <h1 className="text-6xl md:text-8xl font-bold mb-2 tracking-tighter neon-text-glow font-sans">
+          MANTISSA
         </h1>
-        <p className="text-[var(--text-secondary)] text-lg md:text-xl tracking-[0.2em] font-mono uppercase">
-          Your passkeys, biometrics, and assets stay encrypted
+        <h2 className="text-xl md:text-2xl font-mono text-[var(--accent)] tracking-[0.3em] uppercase mb-4 opacity-80">
+          Seedless Smart Wallet
+        </h2>
+        <p className="text-[var(--text-secondary)] text-sm md:text-base font-mono max-w-md mx-auto leading-relaxed opacity-60">
+          Biometric security meets Mantle L2. <br />
+          No seed phrases. Just you.
         </p>
       </div>
 
