@@ -173,7 +173,7 @@ Update this section after deployment:
 ### Mantle Sepolia Testnet
 | Contract | Address |
 |----------|---------|
-| MantissaFactory | `TBD` |
+| MantissaFactory | `0x876DBabB4A37cCB97D5ca4285444f1BcE06220a6` |
 
 ### Mantle Mainnet
 | Contract | Address |
